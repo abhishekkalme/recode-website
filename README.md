@@ -32,6 +32,14 @@ Now, resolve your all doubts and communicate with our all contributors.
 
 To get started with contributing to Recode-Hive, please refer to our [Contributing Guidelines](CONTRIBUTING.md).
 
+<div>
+    <a href="https://www.loom.com/share/c8d8d5f0c2534a1f86fc510dcef52ee0">
+      <p>How to Contribute to this repo | How to Setup - Watch Video</p>
+    </a>
+    <a href="https://www.loom.com/share/c8d8d5f0c2534a1f86fc510dcef52ee0">
+      <img style="max-width:700px;" src="https://cdn.loom.com/sessions/thumbnails/c8d8d5f0c2534a1f86fc510dcef52ee0-30cac2eeec09a266-full-play.gif">
+    </a>
+  </div>
 Follow these steps:
 
 
@@ -53,25 +61,22 @@ flowchart LR
    cd recodehive-website
    ```
 
-3. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+3. **Prerequesites**
+- [Docker](https://docs.docker.com/engine/install/) installed
+- Docker compose installed (Optional)
 
-4. **Running the Application:**
-    There is a high chance you will face this issue due to the Next.js 18 version conflict, which is global , so type the below to fix it and ignore the warnings while setup.
 
-   ```bash
-   npm install --legacy-peer-deps
-   ```
+4. **Build the Docker Image:**
+    Only do this if you are setting up this project locally for the first time. (only build)
 
-    Once you have installed the dependencies, you can run the application locally using:
-    ```bash
-    npm i
-    ```
-    ```bash
-    npm start
-    ```
+```bash
+docker build -t recodehive-app .
+```
+
+5. Run the Container
+```bash
+docker run -p 3000:3000 recodehive-app
+```
 
     This command will start a development server and open the application in your default web browser.
 
