@@ -1,10 +1,11 @@
-import React, {type ReactNode} from 'react';
-import {useThemeConfig, ErrorCauseBoundary} from '@docusaurus/theme-common';
+import React, { useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
+import { useThemeConfig, ErrorCauseBoundary } from '@docusaurus/theme-common';
 import {
   splitNavbarItems,
   useNavbarMobileSidebar,
 } from '@docusaurus/theme-common/internal';
-import NavbarItem, {type Props as NavbarItemConfig} from '@theme/NavbarItem';
+import NavbarItem, { type Props as NavbarItemConfig } from '@theme/NavbarItem';
 import NavbarColorModeToggle from '@theme/Navbar/ColorModeToggle';
 import SearchBar from '@theme/SearchBar';
 import NavbarMobileSidebarToggle from '@theme/Navbar/MobileSidebar/Toggle';
@@ -13,32 +14,29 @@ import NavbarSearch from '@theme/Navbar/Search';
 
 import styles from './styles.module.css';
 
-function useNavbarItems() {
-  // TODO temporary casting until ThemeConfig type is improved
+// Grab config navbar items
+function useNavbarItems(): NavbarItemConfig[] {
   return useThemeConfig().navbar.items as NavbarItemConfig[];
 }
 
-function NavbarItems({items}: {items: NavbarItemConfig[]}): ReactNode {
-  return (
-    <>
-      {items.map((item, i) => (
-        <ErrorCauseBoundary
-          key={i}
-          onError={(error) =>
-            new Error(
-              `A theme navbar item failed to render.
-Please double-check the following navbar item (themeConfig.navbar.items) of your Docusaurus config:
-${JSON.stringify(item, null, 2)}`,
-              {cause: error},
-            )
-          }>
-          <NavbarItem {...item} />
-        </ErrorCauseBoundary>
-      ))}
-    </>
-  );
+// Render all navbar items with error boundary
+function NavbarItems({ items }: { items: NavbarItemConfig[] }): ReactNode {
+  return items.map((item, idx) => (
+    <ErrorCauseBoundary
+      key={idx}
+      onError={(err) =>
+        new Error(
+          `Navbar item render failed:\n${JSON.stringify(item, null, 2)}`,
+          { cause: err }
+        )
+      }
+    >
+      <NavbarItem {...item} />
+    </ErrorCauseBoundary>
+  ));
 }
 
+// Layout
 function NavbarContentLayout({
   left,
   right,
@@ -54,27 +52,30 @@ function NavbarContentLayout({
   );
 }
 
+//  SSR-safe version
 export default function NavbarContent(): ReactNode {
-  const mobileSidebar = useNavbarMobileSidebar();
-
+  const [isMounted, setIsMounted] = useState(false);
   const items = useNavbarItems();
   const [leftItems, rightItems] = splitNavbarItems(items);
-
   const searchBarItem = items.find((item) => item.type === 'search');
+
+  // Mount guard to avoid SSR hook call
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   return (
     <NavbarContentLayout
       left={
-        // TODO stop hardcoding items?
         <>
-          {!mobileSidebar.disabled && <NavbarMobileSidebarToggle />}
+          {isMounted && !useNavbarMobileSidebar().disabled && (
+            <NavbarMobileSidebarToggle />
+          )}
           <NavbarLogo />
           <NavbarItems items={leftItems} />
         </>
       }
       right={
-        // TODO stop hardcoding items?
-        // Ask the user to add the respective navbar items => more flexible
         <>
           <NavbarItems items={rightItems} />
           <NavbarColorModeToggle className={styles.colorModeToggle} />
